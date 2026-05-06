@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BotManager — Panel Administrador</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0f14;--bg2:#13161e;--bg3:#1a1e28;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+  --text:#f0f2f8;--text2:#8892a4;--text3:#4a5568;
+  --green:#22d37a;--green-bg:rgba(34,211,122,0.1);--green-bd:rgba(34,211,122,0.25);
+  --blue:#4f9cf9;--blue-bg:rgba(79,156,249,0.1);
+  --amber:#f5a623;--amber-bg:rgba(245,166,35,0.1);
+  --red:#f56565;--red-bg:rgba(245,101,101,0.1);
+  --purple:#a78bfa;--purple-bg:rgba(167,139,250,0.1);
+  --sidebar-w:240px;--radius:12px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;overflow-x:hidden}
+.sidebar{width:var(--sidebar-w);flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;height:100vh;position:sticky;top:0;padding:1.5rem 0}
+.sidebar-logo{padding:0 1.5rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:1rem}
+.sidebar-logo h1{font-family:'Syne',sans-serif;font-size:1.25rem;font-weight:700;color:var(--text);letter-spacing:-0.02em}
+.sidebar-logo h1 span{color:var(--green)}
+.sidebar-logo p{font-size:0.72rem;color:var(--text2);margin-top:2px}
+.nav-section{padding:0 0.75rem;margin-bottom:0.25rem}
+.nav-label{font-size:0.68rem;font-weight:600;letter-spacing:0.08em;color:var(--text3);text-transform:uppercase;padding:0.5rem 0.75rem;margin-bottom:0.25rem}
+.nav-item{display:flex;align-items:center;gap:10px;padding:0.6rem 0.75rem;border-radius:8px;font-size:0.86rem;color:var(--text2);cursor:pointer;transition:all 0.15s;border:none;background:none;width:100%;text-align:left}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
+.nav-item .icon{font-size:1rem;width:20px;text-align:center}
+.sidebar-bottom{margin-top:auto;padding:1rem 0.75rem;border-top:1px solid var(--border)}
+.admin-profile{display:flex;align-items:center;gap:10px;padding:0.6rem 0.75rem;border-radius:8px;margin-bottom:8px}
+.admin-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--blue));display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:600;flex-shrink:0}
+.admin-profile-info p{font-size:0.82rem;font-weight:500;color:var(--text)}
+.admin-profile-info span{font-size:0.72rem;color:var(--text2)}
+.btn-logout{width:100%;padding:0.5rem;background:var(--red-bg);color:var(--red);border:1px solid rgba(245,101,101,0.25);border-radius:8px;cursor:pointer;font-size:0.82rem;font-family:'DM Sans',sans-serif;transition:all 0.15s}
+.btn-logout:hover{background:rgba(245,101,101,0.2)}
+.main{flex:1;display:flex;flex-direction:column;min-height:100vh;overflow:hidden}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.topbar-title{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:600}
+.topbar-right{display:flex;align-items:center;gap:1rem}
+.btn{display:flex;align-items:center;gap:6px;padding:0.55rem 1.1rem;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.84rem;font-weight:500;cursor:pointer;transition:all 0.15s;border:none}
+.btn-primary{background:var(--green);color:#0d0f14}
+.btn-primary:hover{background:#1cb569;transform:translateY(-1px)}
+.btn-ghost{background:var(--bg3);color:var(--text2);border:1px solid var(--border)}
+.btn-ghost:hover{color:var(--text)}
+.content{flex:1;padding:2rem;overflow-y:auto}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem}
+.metric-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;transition:all 0.2s}
+.metric-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.metric-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+.metric-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+.metric-val{font-family:'Syne',sans-serif;font-size:2rem;font-weight:700;letter-spacing:-0.03em;margin-bottom:2px}
+.metric-label{font-size:0.78rem;color:var(--text2)}
+.two-col{display:grid;grid-template-columns:1fr 360px;gap:1.5rem;margin-bottom:2rem}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.card-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-family:'Syne',sans-serif;font-size:0.95rem;font-weight:600}
+.card-subtitle{font-size:0.78rem;color:var(--text2);margin-top:2px}
+table{width:100%;border-collapse:collapse}
+thead tr{background:var(--bg3)}
+th{padding:0.75rem 1.25rem;text-align:left;font-size:0.72rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text3)}
+td{padding:0.9rem 1.25rem;font-size:0.86rem;border-top:1px solid var(--border)}
+tr:hover td{background:rgba(255,255,255,0.02)}
+.cliente-info{display:flex;align-items:center;gap:10px}
+.cliente-avatar{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;background:var(--green-bg);color:var(--green)}
+.cliente-name{font-weight:500;color:var(--text);font-size:0.88rem}
+.cliente-email{font-size:0.74rem;color:var(--text2)}
+.status-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:100px;font-size:0.76rem;font-weight:500}
+.status-badge::before{content:'';width:5px;height:5px;border-radius:50%}
+.status-active{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
+.status-active::before{background:var(--green)}
+.status-paused{background:var(--amber-bg);color:var(--amber);border:1px solid rgba(245,166,35,0.25)}
+.status-paused::before{background:var(--amber)}
+.plan-badge{padding:2px 8px;border-radius:6px;font-size:0.74rem;font-weight:500}
+.plan-pro{background:var(--purple-bg);color:var(--purple)}
+.plan-basic{background:var(--bg3);color:var(--text2)}
+.action-btn{width:32px;height:32px;border-radius:7px;background:var(--bg3);border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:0.9rem;transition:all 0.15s;margin-left:4px}
+.action-btn:hover{background:var(--bg);border-color:var(--border2)}
+.conv-item{padding:0.9rem 1.25rem;border-top:1px solid var(--border);cursor:pointer;transition:background 0.15s}
+.conv-item:first-child{border-top:none}
+.conv-item:hover{background:var(--bg3)}
+.conv-negocio{font-size:0.84rem;font-weight:500;color:var(--text);margin-bottom:3px}
+.conv-preview{font-size:0.78rem;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px}
+.conv-time{font-size:0.7rem;color:var(--text3);margin-top:3px}
+.loading{display:flex;align-items:center;justify-content:center;padding:3rem;color:var(--text2);font-size:0.9rem;gap:8px}
+.empty{text-align:center;padding:3rem;color:var(--text3);font-size:0.86rem}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);z-index:100;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.25s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:2rem;width:540px;max-height:90vh;overflow-y:auto;transform:scale(0.95) translateY(10px);transition:transform 0.25s}
+.modal-overlay.open .modal{transform:scale(1) translateY(0)}
+.modal h2{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:600;margin-bottom:0.25rem}
+.modal-sub{font-size:0.84rem;color:var(--text2);margin-bottom:1.5rem}
+.form-group{margin-bottom:1rem}
+.form-group label{display:block;font-size:0.78rem;color:var(--text2);margin-bottom:5px;font-weight:500}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:0.65rem 0.9rem;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.88rem;outline:none;transition:border-color 0.15s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--green)}
+.form-group select option{background:var(--bg3)}
+.form-group textarea{resize:vertical;min-height:100px}
+.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border)}
+.msg-list{display:flex;flex-direction:column;gap:8px;max-height:400px;overflow-y:auto;padding:1rem;background:var(--bg3);border-radius:10px;margin-bottom:1rem}
+.msg-bubble{max-width:80%;padding:0.6rem 0.9rem;border-radius:12px;font-size:0.84rem;line-height:1.5}
+.msg-bubble.user{background:var(--green);color:#0d0f14;align-self:flex-end;border-bottom-right-radius:3px}
+.msg-bubble.bot{background:var(--bg2);color:var(--text);border:1px solid var(--border);align-self:flex-start;border-bottom-left-radius:3px}
+.msg-role{font-size:0.7rem;color:var(--text3);margin-bottom:3px}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <h1>Bot<span>Manager</span></h1>
+    <p>Panel de administración</p>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Principal</div>
+    <button class="nav-item active" onclick="setNav(this)"><span class="icon">⬛</span> Dashboard</button>
+    <button class="nav-item" onclick="setNav(this)"><span class="icon">🤖</span> Clientes</button>
+    <button class="nav-item" onclick="setNav(this)"><span class="icon">💬</span> Conversaciones</button>
+    <button class="nav-item" onclick="setNav(this)"><span class="icon">👥</span> Leads</button>
+  </div>
+  <div class="nav-section" style="margin-top:1rem">
+    <div class="nav-label">Sistema</div>
+    <button class="nav-item" onclick="setNav(this)"><span class="icon">⚙️</span> Configuración</button>
+  </div>
+  <div class="sidebar-bottom">
+    <div class="admin-profile">
+      <div class="admin-avatar" id="avatar-initials">JR</div>
+      <div class="admin-profile-info">
+        <p id="admin-nombre">Administrador</p>
+        <span id="admin-email">cargando...</span>
+      </div>
+    </div>
+    <button class="btn-logout" onclick="cerrarSesion()">🚪 Cerrar sesión</button>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-title">Dashboard</div>
+    <div class="topbar-right">
+      <button class="btn btn-ghost" onclick="cargarDatos()">↻ Actualizar</button>
+      <button class="btn btn-primary" onclick="openModal('modal-cliente')">＋ Nuevo cliente</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="metrics">
+      <div class="metric-card">
+        <div class="metric-header"><div class="metric-icon" style="background:var(--green-bg)">🤖</div></div>
+        <div class="metric-val" id="m-clientes" style="color:var(--green)">—</div>
+        <div class="metric-label">Clientes totales</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-header"><div class="metric-icon" style="background:var(--blue-bg)">💬</div></div>
+        <div class="metric-val" id="m-conversaciones" style="color:var(--blue)">—</div>
+        <div class="metric-label">Conversaciones</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-header"><div class="metric-icon" style="background:var(--amber-bg)">👥</div></div>
+        <div class="metric-val" id="m-leads" style="color:var(--amber)">—</div>
+        <div class="metric-label">Leads capturados</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-header"><div class="metric-icon" style="background:var(--green-bg)">⚡</div></div>
+        <div class="metric-val" id="m-activos" style="color:var(--green)">—</div>
+        <div class="metric-label">Bots activos</div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Clientes y bots</div>
+            <div class="card-subtitle" id="sub-clientes">Cargando...</div>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Negocio</th><th>Bot</th><th>Plan</th><th>Acciones</th></tr>
+          </thead>
+          <tbody id="tbody-clientes">
+            <tr><td colspan="4"><div class="loading">⏳ Cargando...</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">Conversaciones recientes</div></div>
+        <div id="lista-convs"><div class="loading">⏳ Cargando...</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Leads capturados</div>
+          <div class="card-subtitle">Personas interesadas captadas por el bot</div>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Negocio</th><th>Mensaje del lead</th><th>Fecha</th></tr>
+        </thead>
+        <tbody id="tbody-leads">
+          <tr><td colspan="3"><div class="loading">⏳ Cargando...</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<!-- MODAL NUEVO CLIENTE -->
+<div class="modal-overlay" id="modal-cliente">
+  <div class="modal">
+    <h2>Agregar nuevo cliente</h2>
+    <p class="modal-sub">Completa los datos para activar el bot del negocio.</p>
+    <div class="form-row-2">
+      <div class="form-group"><label>Nombre del negocio *</label><input type="text" id="n-nombre" placeholder="Clínica Salud"/></div>
+      <div class="form-group"><label>Plan</label><select id="n-plan"><option value="pro">Pro</option><option value="basico">Básico</option></select></div>
+    </div>
+    <div class="form-row-2">
+      <div class="form-group"><label>Email</label><input type="email" id="n-email" placeholder="admin@negocio.com"/></div>
+      <div class="form-group"><label>Teléfono</label><input type="tel" id="n-telefono" placeholder="+502 0000-0000"/></div>
+    </div>
+    <div class="form-group"><label>Dirección</label><input type="text" id="n-direccion" placeholder="Zona 10, Guatemala City"/></div>
+    <div class="form-group"><label>Horario de atención</label><input type="text" id="n-horario" placeholder="Lunes a Viernes 8:00 AM - 6:00 PM"/></div>
+    <div class="form-group"><label>Servicios (separados por coma)</label><input type="text" id="n-servicios" placeholder="Servicio 1, Servicio 2"/></div>
+    <div class="form-group"><label>Personalidad del bot</label><textarea id="n-prompt" placeholder="Eres el asistente virtual de [negocio]. Sé amable y profesional..."></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-cliente')">Cancelar</button>
+      <button class="btn btn-primary" onclick="crearCliente()">Crear cliente</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR BOT -->
+<div class="modal-overlay" id="modal-editar">
+  <div class="modal">
+    <h2>Editar configuración del bot</h2>
+    <p class="modal-sub" id="editar-titulo">Negocio</p>
+    <input type="hidden" id="editar-id"/>
+    <div class="form-group"><label>Nombre del negocio</label><input type="text" id="e-nombre"/></div>
+    <div class="form-row-2">
+      <div class="form-group"><label>Email</label><input type="text" id="e-email"/></div>
+      <div class="form-group"><label>Teléfono</label><input type="text" id="e-telefono"/></div>
+    </div>
+    <div class="form-group"><label>Horario</label><input type="text" id="e-horario"/></div>
+    <div class="form-group"><label>Servicios</label><input type="text" id="e-servicios"/></div>
+    <div class="form-group"><label>Personalidad del bot (system prompt)</label><textarea id="e-prompt" style="min-height:120px"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-editar')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarEdicion()">💾 Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL VER CONVERSACION -->
+<div class="modal-overlay" id="modal-conv">
+  <div class="modal" style="width:580px">
+    <h2>Conversación</h2>
+    <p class="modal-sub" id="conv-titulo"></p>
+    <div class="msg-list" id="msg-list"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-conv')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── CONFIG ─────────────────────────────────────────────────
+  const SUPABASE_URL = "https://kkbwtoaqilrrezeqyfjn.supabase.co"
+  const SUPABASE_ANON_KEY = "sb_publishable_07HNpDdDOITolQqvGUzqUg_PBvdLiJI"
+  // ──────────────────────────────────────────────────────────
+
+  const { createClient } = supabase
+  const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: { persistSession: true, autoRefreshToken: true }
+  })
+
+  // ── Verificar sesión al cargar ─────────────────────────────
+  async function init() {
+    const { data: { session } } = await db.auth.getSession()
+    if (!session) {
+      window.location.href = "/login.html"
+      return
+    }
+
+    // Mostrar info del admin
+    const { data: admin } = await db.from("admins").select("*").eq("id", session.user.id).single()
+    if (admin) {
+      document.getElementById("admin-nombre").textContent = admin.nombre || "Admin"
+      document.getElementById("admin-email").textContent = admin.email
+      const initials = (admin.nombre || "A").split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
+      document.getElementById("avatar-initials").textContent = initials
+    }
+
+    cargarDatos()
+    setInterval(cargarDatos, 30000)
+  }
+
+  // ── Cerrar sesión ──────────────────────────────────────────
+  async function cerrarSesion() {
+    await db.auth.signOut()
+    window.location.href = "/login.html"
+  }
+
+  // ── Nav ────────────────────────────────────────────────────
+  function setNav(btn) {
+    document.querySelectorAll(".nav-item").forEach(b => b.classList.remove("active"))
+    btn.classList.add("active")
+  }
+
+  function openModal(id) { document.getElementById(id).classList.add("open") }
+  function closeModal(id) { document.getElementById(id).classList.remove("open") }
+  document.querySelectorAll(".modal-overlay").forEach(m => {
+    m.addEventListener("click", e => { if (e.target === m) m.classList.remove("open") })
+  })
+
+  // ── Cargar todo ────────────────────────────────────────────
+  async function cargarDatos() {
+    await Promise.all([cargarClientes(), cargarConversaciones(), cargarLeads()])
+  }
+
+  // ── Clientes ───────────────────────────────────────────────
+  async function cargarClientes() {
+    const { data, error } = await db.from("negocios").select("*").order("created_at", { ascending: false })
+    if (error) { console.error("Error clientes:", error); return }
+
+    document.getElementById("m-clientes").textContent = data.length
+    document.getElementById("m-activos").textContent = data.filter(n => n.bot_activo).length
+    document.getElementById("sub-clientes").textContent = `${data.length} negocio${data.length !== 1 ? "s" : ""} registrado${data.length !== 1 ? "s" : ""}`
+
+    const tbody = document.getElementById("tbody-clientes")
+    if (!data.length) {
+      tbody.innerHTML = `<tr><td colspan="4"><div class="empty">No hay clientes aún</div></td></tr>`
+      return
+    }
+
+    tbody.innerHTML = data.map(n => `
+      <tr>
+        <td>
+          <div class="cliente-info">
+            <div class="cliente-avatar">🏢</div>
+            <div>
+              <div class="cliente-name">${n.nombre}</div>
+              <div class="cliente-email">${n.email || "Sin email"}</div>
+            </div>
+          </div>
+        </td>
+        <td><span class="status-badge ${n.bot_activo ? "status-active" : "status-paused"}">${n.bot_activo ? "Activo" : "Pausado"}</span></td>
+        <td><span class="plan-badge ${n.plan === "pro" ? "plan-pro" : "plan-basic"}">${n.plan || "básico"}</span></td>
+        <td>
+          <span class="action-btn" title="Editar bot" onclick='abrirEditar(${JSON.stringify(n).replace(/'/g, "&#39;")})'>✏️</span>
+          <span class="action-btn" title="${n.bot_activo ? "Pausar bot" : "Activar bot"}" onclick="toggleBot('${n.id}', ${n.bot_activo})">${n.bot_activo ? "⏸" : "▶"}</span>
+        </td>
+      </tr>
+    `).join("")
+  }
+
+  async function toggleBot(id, activo) {
+    await db.from("negocios").update({ bot_activo: !activo }).eq("id", id)
+    cargarClientes()
+  }
+
+  function abrirEditar(n) {
+    document.getElementById("editar-id").value = n.id
+    document.getElementById("editar-titulo").textContent = `Editando: ${n.nombre}`
+    document.getElementById("e-nombre").value = n.nombre || ""
+    document.getElementById("e-email").value = n.email || ""
+    document.getElementById("e-telefono").value = n.telefono || ""
+    document.getElementById("e-horario").value = n.horario || ""
+    document.getElementById("e-servicios").value = n.servicios || ""
+    document.getElementById("e-prompt").value = n.system_prompt || ""
+    openModal("modal-editar")
+  }
+
+  async function guardarEdicion() {
+    const id = document.getElementById("editar-id").value
+    const updates = {
+      nombre: document.getElementById("e-nombre").value,
+      email: document.getElementById("e-email").value,
+      telefono: document.getElementById("e-telefono").value,
+      horario: document.getElementById("e-horario").value,
+      servicios: document.getElementById("e-servicios").value,
+      system_prompt: document.getElementById("e-prompt").value,
+    }
+    const { error } = await db.from("negocios").update(updates).eq("id", id)
+    if (error) { alert("Error al guardar: " + error.message); return }
+    closeModal("modal-editar")
+    cargarClientes()
+    alert("✅ Bot actualizado. Los cambios aplican en el próximo mensaje.")
+  }
+
+  async function crearCliente() {
+    const nombre = document.getElementById("n-nombre").value.trim()
+    if (!nombre) { alert("El nombre es obligatorio"); return }
+    const { error } = await db.from("negocios").insert({
+      nombre,
+      email: document.getElementById("n-email").value,
+      telefono: document.getElementById("n-telefono").value,
+      direccion: document.getElementById("n-direccion").value,
+      horario: document.getElementById("n-horario").value,
+      servicios: document.getElementById("n-servicios").value,
+      plan: document.getElementById("n-plan").value,
+      system_prompt: document.getElementById("n-prompt").value,
+      bot_activo: true
+    })
+    if (error) { alert("Error: " + error.message); return }
+    closeModal("modal-cliente")
+    cargarDatos()
+    alert("✅ Cliente creado correctamente")
+  }
+
+  // ── Conversaciones ─────────────────────────────────────────
+  async function cargarConversaciones() {
+    const { data, error } = await db.from("conversaciones")
+      .select("*, negocios(nombre)")
+      .order("updated_at", { ascending: false })
+      .limit(30)
+    if (error) { console.error("Error conversaciones:", error); return }
+
+    document.getElementById("m-conversaciones").textContent = data.length
+
+    const div = document.getElementById("lista-convs")
+    if (!data.length) {
+      div.innerHTML = `<div class="empty">No hay conversaciones aún</div>`
+      return
+    }
+
+    div.innerHTML = data.slice(0, 8).map(c => {
+      const msgs = c.mensajes || []
+      const ultimo = msgs[msgs.length - 1]
+      const preview = ultimo ? ultimo.content.substring(0, 55) + "..." : "Sin mensajes"
+      const hora = new Date(c.updated_at).toLocaleString("es", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "short" })
+      return `
+        <div class="conv-item" onclick="verConversacion(${JSON.stringify(c).replace(/'/g, "&#39;")})">
+          <div class="conv-negocio">${c.negocios?.nombre || "Negocio"} <span style="color:var(--text3);font-weight:400">· ${msgs.length} msgs</span></div>
+          <div class="conv-preview">${preview}</div>
+          <div class="conv-time">${hora}</div>
+        </div>
+      `
+    }).join("")
+  }
+
+  function verConversacion(conv) {
+    const msgs = conv.mensajes || []
+    document.getElementById("conv-titulo").textContent = `${conv.negocios?.nombre || "Negocio"} — ${msgs.length} mensajes`
+    document.getElementById("msg-list").innerHTML = msgs.map(m => `
+      <div style="display:flex;flex-direction:column;align-items:${m.role === "user" ? "flex-end" : "flex-start"}">
+        <div class="msg-role">${m.role === "user" ? "👤 Usuario" : "🤖 Bot"}</div>
+        <div class="msg-bubble ${m.role === "user" ? "user" : "bot"}">${m.content}</div>
+      </div>
+    `).join("")
+    openModal("modal-conv")
+  }
+
+  // ── Leads ──────────────────────────────────────────────────
+  async function cargarLeads() {
+    const { data, error } = await db.from("leads")
+      .select("*, negocios(nombre)")
+      .order("created_at", { ascending: false })
+    if (error) { console.error("Error leads:", error); return }
+
+    document.getElementById("m-leads").textContent = data.length
+
+    const tbody = document.getElementById("tbody-leads")
+    if (!data.length) {
+      tbody.innerHTML = `<tr><td colspan="3"><div class="empty">No hay leads aún</div></td></tr>`
+      return
+    }
+
+    tbody.innerHTML = data.map(l => `
+      <tr>
+        <td><strong>${l.negocios?.nombre || "—"}</strong></td>
+        <td style="color:var(--text2)">${l.mensaje || "—"}</td>
+        <td style="color:var(--text3);white-space:nowrap">${new Date(l.created_at).toLocaleDateString("es", { day:"2-digit", month:"short", year:"numeric" })}</td>
+      </tr>
+    `).join("")
+  }
+
+  // ── Arrancar ───────────────────────────────────────────────
+  init()
+</script>
+</body>
+</html>

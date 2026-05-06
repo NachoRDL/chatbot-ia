@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Clínica Salud — Atención médica de confianza</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green-deep: #0a2e1e; --green-mid: #1a5c3a; --green-soft: #2d8a58;
+      --green-pale: #e8f5ee; --cream: #faf8f3; --warm-white: #ffffff;
+      --text-dark: #0f1f16; --text-mid: #3d5a47; --text-light: #7a9987;
+      --accent: #c8f0d8; --gold: #b8976a;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--text-dark); overflow-x: hidden; }
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.25rem 3rem; background: rgba(250,248,243,0.92);
+      backdrop-filter: blur(12px); border-bottom: 1px solid rgba(45,138,88,0.1);
+    }
+    .nav-logo { font-family: 'Fraunces', serif; font-size: 1.4rem; font-weight: 600; color: var(--green-deep); letter-spacing: -0.02em; }
+    .nav-logo span { color: var(--green-soft); }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a { font-size: 0.88rem; font-weight: 500; color: var(--text-mid); text-decoration: none; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--green-soft); }
+    .nav-cta { background: var(--green-deep); color: white; padding: 0.6rem 1.4rem; border-radius: 100px; font-size: 0.85rem; font-weight: 500; text-decoration: none; transition: background 0.2s, transform 0.15s; }
+    .nav-cta:hover { background: var(--green-mid); transform: translateY(-1px); }
+    .hero { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 4rem; padding: 8rem 3rem 4rem; background: var(--cream); position: relative; overflow: hidden; }
+    .hero::before { content: ''; position: absolute; top: -20%; right: -10%; width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(45,138,88,0.08) 0%, transparent 70%); pointer-events: none; }
+    .hero-tag { display: inline-flex; align-items: center; gap: 8px; background: var(--accent); color: var(--green-mid); padding: 0.4rem 1rem; border-radius: 100px; font-size: 0.8rem; font-weight: 500; margin-bottom: 1.5rem; }
+    .hero-tag::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--green-soft); }
+    .hero h1 { font-family: 'Fraunces', serif; font-size: clamp(2.8rem, 5vw, 4.2rem); font-weight: 300; line-height: 1.1; color: var(--green-deep); margin-bottom: 1.5rem; letter-spacing: -0.03em; }
+    .hero h1 em { font-style: italic; color: var(--green-soft); }
+    .hero p { font-size: 1.05rem; line-height: 1.75; color: var(--text-mid); max-width: 480px; margin-bottom: 2.5rem; }
+    .hero-actions { display: flex; gap: 1rem; align-items: center; }
+    .btn-primary { background: var(--green-deep); color: white; padding: 0.85rem 2rem; border-radius: 100px; font-size: 0.9rem; font-weight: 500; text-decoration: none; transition: all 0.2s; border: none; cursor: pointer; }
+    .btn-primary:hover { background: var(--green-mid); transform: translateY(-2px); }
+    .btn-secondary { color: var(--green-mid); font-size: 0.9rem; font-weight: 500; text-decoration: none; display: flex; align-items: center; gap: 6px; transition: gap 0.2s; }
+    .btn-secondary:hover { gap: 10px; }
+    .hero-visual { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .hero-card { background: white; border-radius: 16px; padding: 1.5rem; border: 1px solid rgba(45,138,88,0.1); transition: transform 0.3s; }
+    .hero-card:hover { transform: translateY(-4px); }
+    .hero-card:nth-child(2) { margin-top: 2rem; }
+    .hero-card:nth-child(3) { margin-top: -1rem; }
+    .card-icon { width: 44px; height: 44px; border-radius: 12px; background: var(--green-pale); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; margin-bottom: 1rem; }
+    .hero-card h3 { font-size: 0.95rem; font-weight: 500; color: var(--text-dark); margin-bottom: 0.4rem; }
+    .hero-card p { font-size: 0.82rem; color: var(--text-light); line-height: 1.5; }
+    .hero-stat { position: absolute; bottom: -1rem; left: 50%; transform: translateX(-50%); background: var(--green-deep); color: white; padding: 0.8rem 1.5rem; border-radius: 100px; font-size: 0.85rem; white-space: nowrap; display: flex; align-items: center; gap: 8px; }
+    .hero-stat strong { font-weight: 600; }
+    .servicios { padding: 6rem 3rem; background: var(--warm-white); }
+    .section-tag { font-size: 0.8rem; font-weight: 500; letter-spacing: 0.1em; color: var(--green-soft); text-transform: uppercase; margin-bottom: 1rem; }
+    .section-title { font-family: 'Fraunces', serif; font-size: clamp(2rem, 3.5vw, 2.8rem); font-weight: 300; color: var(--green-deep); letter-spacing: -0.02em; margin-bottom: 3rem; max-width: 500px; }
+    .servicios-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+    .servicio-card { padding: 2rem; border-radius: 16px; background: var(--cream); border: 1px solid rgba(45,138,88,0.08); transition: all 0.3s; position: relative; overflow: hidden; }
+    .servicio-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: var(--green-soft); transform: scaleX(0); transform-origin: left; transition: transform 0.3s; }
+    .servicio-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(10,46,30,0.08); }
+    .servicio-card:hover::after { transform: scaleX(1); }
+    .servicio-num { font-family: 'Fraunces', serif; font-size: 3rem; font-weight: 300; color: var(--accent); line-height: 1; margin-bottom: 1rem; }
+    .servicio-card h3 { font-size: 1.1rem; font-weight: 500; color: var(--text-dark); margin-bottom: 0.6rem; }
+    .servicio-card p { font-size: 0.88rem; color: var(--text-light); line-height: 1.65; }
+    .horarios { padding: 6rem 3rem; background: var(--green-deep); color: white; display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; }
+    .horarios h2 { font-family: 'Fraunces', serif; font-size: clamp(2rem, 3vw, 2.8rem); font-weight: 300; line-height: 1.2; margin-bottom: 1.5rem; letter-spacing: -0.02em; }
+    .horarios p { color: rgba(255,255,255,0.65); font-size: 0.95rem; line-height: 1.7; margin-bottom: 2rem; }
+    .horarios-table { width: 100%; }
+    .horarios-row { display: flex; justify-content: space-between; align-items: center; padding: 0.9rem 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .horarios-row:last-child { border-bottom: none; }
+    .horarios-dia { font-size: 0.9rem; color: rgba(255,255,255,0.7); }
+    .horarios-tiempo { font-size: 0.9rem; font-weight: 500; color: var(--accent); }
+    .equipo { padding: 6rem 3rem; background: var(--cream); }
+    .equipo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 3rem; }
+    .doctor-card { background: white; border-radius: 16px; border: 1px solid rgba(45,138,88,0.08); overflow: hidden; transition: transform 0.3s; }
+    .doctor-card:hover { transform: translateY(-4px); }
+    .doctor-avatar { height: 180px; display: flex; align-items: center; justify-content: center; font-size: 4rem; background: var(--green-pale); }
+    .doctor-info { padding: 1.25rem; }
+    .doctor-info h3 { font-size: 1rem; font-weight: 500; margin-bottom: 0.25rem; }
+    .doctor-info .especialidad { font-size: 0.82rem; color: var(--green-soft); font-weight: 500; margin-bottom: 0.5rem; }
+    .doctor-info p { font-size: 0.82rem; color: var(--text-light); line-height: 1.5; }
+    .contacto { padding: 6rem 3rem; background: var(--warm-white); display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: start; }
+    .contacto h2 { font-family: 'Fraunces', serif; font-size: clamp(2rem, 3vw, 2.6rem); font-weight: 300; color: var(--green-deep); letter-spacing: -0.02em; margin-bottom: 1rem; }
+    .contacto > div > p { color: var(--text-mid); font-size: 0.95rem; line-height: 1.7; margin-bottom: 2rem; }
+    .contacto-item { display: flex; gap: 1rem; align-items: flex-start; margin-bottom: 1.25rem; }
+    .contacto-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--green-pale); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+    .contacto-item h4 { font-size: 0.82rem; color: var(--text-light); margin-bottom: 2px; }
+    .contacto-item p { font-size: 0.92rem; color: var(--text-dark); font-weight: 500; }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; font-size: 0.82rem; color: var(--text-mid); margin-bottom: 0.4rem; }
+    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 0.75rem 1rem; border: 1px solid rgba(45,138,88,0.2); border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; background: var(--cream); color: var(--text-dark); transition: border-color 0.2s, box-shadow 0.2s; outline: none; }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--green-soft); box-shadow: 0 0 0 3px rgba(45,138,88,0.1); }
+    .form-group textarea { resize: vertical; min-height: 100px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    footer { background: var(--green-deep); color: rgba(255,255,255,0.6); padding: 2rem 3rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; }
+    footer .logo { font-family: 'Fraunces', serif; color: white; font-size: 1.1rem; }
+    footer a { color: rgba(255,255,255,0.5); text-decoration: none; margin-left: 1.5rem; transition: color 0.2s; }
+    footer a:hover { color: white; }
+    #chat-toggle { position: fixed; bottom: 2rem; right: 2rem; z-index: 1000; width: 60px; height: 60px; border-radius: 50%; background: var(--green-deep); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 30px rgba(10,46,30,0.35); transition: transform 0.3s, background 0.2s; font-size: 1.5rem; }
+    #chat-toggle:hover { transform: scale(1.08); background: var(--green-mid); }
+    #chat-toggle.open { background: var(--text-mid); }
+    #chat-bubble { position: fixed; bottom: 6.5rem; right: 2rem; z-index: 999; width: 360px; height: 520px; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(10,46,30,0.18); display: flex; flex-direction: column; overflow: hidden; border: 1px solid rgba(45,138,88,0.12); transform: scale(0.85) translateY(20px); opacity: 0; pointer-events: none; transform-origin: bottom right; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    #chat-bubble.visible { transform: scale(1) translateY(0); opacity: 1; pointer-events: all; }
+    .chat-header { background: var(--green-deep); padding: 1.1rem 1.25rem; display: flex; align-items: center; gap: 12px; }
+    .chat-avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+    .chat-header-info h4 { color: white; font-size: 0.92rem; font-weight: 500; }
+    .chat-header-info p { color: rgba(255,255,255,0.6); font-size: 0.75rem; display: flex; align-items: center; gap: 4px; }
+    .chat-header-info p::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #4ade80; display: inline-block; }
+    .chat-messages { flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; background: var(--cream); }
+    .chat-messages::-webkit-scrollbar { width: 4px; }
+    .chat-messages::-webkit-scrollbar-thumb { background: rgba(45,138,88,0.2); border-radius: 2px; }
+    .msg { max-width: 80%; padding: 0.65rem 0.9rem; border-radius: 14px; font-size: 0.86rem; line-height: 1.5; animation: msgIn 0.25s ease; }
+    @keyframes msgIn { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform: translateY(0); } }
+    .msg.bot { background: white; color: var(--text-dark); border: 1px solid rgba(45,138,88,0.1); border-bottom-left-radius: 4px; align-self: flex-start; }
+    .msg.user { background: var(--green-deep); color: white; border-bottom-right-radius: 4px; align-self: flex-end; }
+    .msg-time { font-size: 0.7rem; color: var(--text-light); margin-top: 2px; }
+    .msg.user .msg-time { color: rgba(255,255,255,0.5); text-align: right; }
+    .chat-suggestions { padding: 0.5rem 1rem 0; display: flex; flex-wrap: wrap; gap: 6px; background: var(--cream); }
+    .suggestion { background: white; border: 1px solid rgba(45,138,88,0.2); color: var(--green-mid); padding: 0.35rem 0.75rem; border-radius: 100px; font-size: 0.78rem; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+    .suggestion:hover { background: var(--green-pale); border-color: var(--green-soft); }
+    .chat-input-area { padding: 0.75rem 1rem; background: white; border-top: 1px solid rgba(45,138,88,0.08); display: flex; gap: 8px; align-items: center; }
+    #chat-input { flex: 1; border: 1px solid rgba(45,138,88,0.2); border-radius: 100px; padding: 0.55rem 1rem; font-family: 'DM Sans', sans-serif; font-size: 0.86rem; background: var(--cream); outline: none; transition: border-color 0.2s; }
+    #chat-input:focus { border-color: var(--green-soft); }
+    #chat-send { width: 36px; height: 36px; border-radius: 50%; background: var(--green-deep); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; transition: background 0.2s; color: white; }
+    #chat-send:hover { background: var(--green-mid); }
+    .typing { display: flex; gap: 4px; padding: 0.65rem 0.9rem; background: white; border: 1px solid rgba(45,138,88,0.1); border-radius: 14px; border-bottom-left-radius: 4px; align-self: flex-start; width: fit-content; }
+    .typing span { width: 7px; height: 7px; border-radius: 50%; background: var(--green-soft); animation: bounce 1.2s infinite; }
+    .typing span:nth-child(2) { animation-delay: 0.2s; }
+    .typing span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+    @media(max-width: 768px) {
+      nav { padding: 1rem 1.5rem; } .nav-links { display: none; }
+      .hero { grid-template-columns: 1fr; padding: 6rem 1.5rem 3rem; gap: 2rem; } .hero-visual { display: none; }
+      .servicios, .equipo, .contacto { padding: 4rem 1.5rem; }
+      .servicios-grid, .equipo-grid { grid-template-columns: 1fr; }
+      .horarios { grid-template-columns: 1fr; padding: 4rem 1.5rem; gap: 2rem; }
+      .contacto { grid-template-columns: 1fr; gap: 3rem; } .form-row { grid-template-columns: 1fr; }
+      #chat-bubble { width: calc(100vw - 2rem); right: 1rem; bottom: 5.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Clínica<span>Salud</span></div>
+  <ul class="nav-links">
+    <li><a href="#servicios">Servicios</a></li>
+    <li><a href="#equipo">Equipo</a></li>
+    <li><a href="#horarios">Horarios</a></li>
+    <li><a href="#contacto">Contacto</a></li>
+  </ul>
+  <a href="#contacto" class="nav-cta">Agendar cita</a>
+</nav>
+
+<section class="hero">
+  <div>
+    <div class="hero-tag">Atención médica de confianza</div>
+    <h1>Tu salud en <em>las mejores</em> manos</h1>
+    <p>Contamos con especialistas certificados y tecnología de punta para brindarte la atención que mereces. Agenda tu cita hoy mismo.</p>
+    <div class="hero-actions">
+      <a href="#contacto" class="btn-primary">Agendar cita</a>
+      <a href="#servicios" class="btn-secondary">Ver servicios →</a>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="hero-card"><div class="card-icon">🩺</div><h3>Medicina General</h3><p>Consultas y diagnósticos completos para toda la familia.</p></div>
+    <div class="hero-card"><div class="card-icon">👶</div><h3>Pediatría</h3><p>Cuidado especializado para los más pequeños del hogar.</p></div>
+    <div class="hero-card"><div class="card-icon">❤️</div><h3>Cardiología</h3><p>Diagnóstico y tratamiento de enfermedades del corazón.</p></div>
+    <div class="hero-card"><div class="card-icon">🔬</div><h3>Laboratorio</h3><p>Resultados rápidos y precisos en nuestro laboratorio propio.</p></div>
+    <div class="hero-stat"><strong>+5,000</strong> pacientes atendidos este año</div>
+  </div>
+</section>
+
+<section class="servicios" id="servicios">
+  <p class="section-tag">Nuestros servicios</p>
+  <h2 class="section-title">Atención integral para toda la familia</h2>
+  <div class="servicios-grid">
+    <div class="servicio-card"><div class="servicio-num">01</div><h3>Medicina General</h3><p>Consultas preventivas, diagnóstico de enfermedades y seguimiento continuo de tu estado de salud.</p></div>
+    <div class="servicio-card"><div class="servicio-num">02</div><h3>Pediatría</h3><p>Atención especializada para niños desde recién nacidos hasta adolescentes, incluyendo vacunas y control de crecimiento.</p></div>
+    <div class="servicio-card"><div class="servicio-num">03</div><h3>Cardiología</h3><p>Electrocardiogramas, ecocardiografías y tratamiento de enfermedades cardiovasculares con equipos de última generación.</p></div>
+    <div class="servicio-card"><div class="servicio-num">04</div><h3>Laboratorio Clínico</h3><p>Análisis de sangre, orina y cultivos con resultados en menos de 24 horas directamente a tu correo.</p></div>
+    <div class="servicio-card"><div class="servicio-num">05</div><h3>Ultrasonido</h3><p>Estudios de imagen abdominal, obstétrico y de tejidos blandos con equipos digitales de alta resolución.</p></div>
+    <div class="servicio-card"><div class="servicio-num">06</div><h3>Urgencias</h3><p>Atención de emergencias médicas los 7 días de la semana en horario extendido para cuando más nos necesitas.</p></div>
+  </div>
+</section>
+
+<section class="horarios" id="horarios">
+  <div>
+    <h2>Siempre disponibles cuando nos necesitas</h2>
+    <p>Contamos con horarios extendidos para adaptarnos a tu agenda. También puedes agendar tu cita en línea las 24 horas a través de nuestro asistente virtual.</p>
+    <a href="#contacto" class="btn-primary" style="display:inline-block">Ver disponibilidad</a>
+  </div>
+  <div>
+    <div class="horarios-table">
+      <div class="horarios-row"><span class="horarios-dia">Lunes — Viernes</span><span class="horarios-tiempo">7:00 AM — 7:00 PM</span></div>
+      <div class="horarios-row"><span class="horarios-dia">Sábados</span><span class="horarios-tiempo">8:00 AM — 2:00 PM</span></div>
+      <div class="horarios-row"><span class="horarios-dia">Domingos</span><span class="horarios-tiempo">Solo urgencias</span></div>
+      <div class="horarios-row"><span class="horarios-dia">Laboratorio</span><span class="horarios-tiempo">Lun—Sáb 7:00 AM — 12:00 PM</span></div>
+      <div class="horarios-row"><span class="horarios-dia">Urgencias</span><span class="horarios-tiempo">24/7 los 365 días</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="equipo" id="equipo">
+  <p class="section-tag">Nuestro equipo</p>
+  <h2 class="section-title">Especialistas comprometidos con tu bienestar</h2>
+  <div class="equipo-grid">
+    <div class="doctor-card"><div class="doctor-avatar">👨‍⚕️</div><div class="doctor-info"><h3>Dr. Juan López</h3><div class="especialidad">Medicina General</div><p>15 años de experiencia. Especialista en diagnóstico temprano y medicina preventiva.</p></div></div>
+    <div class="doctor-card"><div class="doctor-avatar">👩‍⚕️</div><div class="doctor-info"><h3>Dra. Ana García</h3><div class="especialidad">Pediatría</div><p>Certificada por la Asociación Americana de Pediatría. Especialista en desarrollo infantil.</p></div></div>
+    <div class="doctor-card"><div class="doctor-avatar">👨‍⚕️</div><div class="doctor-info"><h3>Dr. Carlos Méndez</h3><div class="especialidad">Cardiología</div><p>Subespecialista en cardiología intervencionista con formación en Mayo Clinic.</p></div></div>
+  </div>
+</section>
+
+<section class="contacto" id="contacto">
+  <div>
+    <p class="section-tag">Contáctanos</p>
+    <h2>Agenda tu cita hoy mismo</h2>
+    <p>Estamos aquí para ayudarte. Escríbenos, llámanos o usa nuestro asistente virtual disponible 24/7 en la esquina inferior derecha.</p>
+    <div class="contacto-item"><div class="contacto-icon">📍</div><div><h4>Dirección</h4><p>6a Avenida 12-34, Zona 10, Guatemala City</p></div></div>
+    <div class="contacto-item"><div class="contacto-icon">📞</div><div><h4>Teléfono</h4><p>+502 2345-6789</p></div></div>
+    <div class="contacto-item"><div class="contacto-icon">📧</div><div><h4>Email</h4><p>citas@clinicasalud.gt</p></div></div>
+    <div class="contacto-item"><div class="contacto-icon">💬</div><div><h4>Asistente virtual</h4><p>Disponible 24/7 — haz clic en el botón verde</p></div></div>
+  </div>
+  <div>
+    <form onsubmit="handleForm(event)">
+      <div class="form-row">
+        <div class="form-group"><label>Nombre completo</label><input type="text" placeholder="Tu nombre" required/></div>
+        <div class="form-group"><label>Teléfono</label><input type="tel" placeholder="+502 0000-0000"/></div>
+      </div>
+      <div class="form-group"><label>Correo electrónico</label><input type="email" placeholder="correo@ejemplo.com" required/></div>
+      <div class="form-group"><label>Especialidad</label><select><option>Medicina General</option><option>Pediatría</option><option>Cardiología</option><option>Laboratorio</option><option>Ultrasonido</option></select></div>
+      <div class="form-group"><label>Mensaje o motivo de consulta</label><textarea placeholder="Describe brevemente el motivo de tu visita..."></textarea></div>
+      <button type="submit" class="btn-primary" style="width:100%">Enviar solicitud de cita</button>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="logo">ClínicaSalud</div>
+  <div><span>© 2026 Clínica Salud. Todos los derechos reservados.</span><a href="#">Privacidad</a><a href="#">Términos</a></div>
+</footer>
+
+<!-- CHAT WIDGET -->
+<button id="chat-toggle" onclick="toggleChat()" title="Abrir asistente virtual">💬</button>
+
+<div id="chat-bubble">
+  <div class="chat-header">
+    <div class="chat-avatar">🤖</div>
+    <div class="chat-header-info">
+      <h4>Asistente de Clínica Salud</h4>
+      <p>En línea ahora</p>
+    </div>
+  </div>
+  <div class="chat-messages" id="chat-messages"></div>
+  <div class="chat-suggestions" id="suggestions">
+    <button class="suggestion" onclick="sendSuggestion(this)">¿Cuáles son los horarios?</button>
+    <button class="suggestion" onclick="sendSuggestion(this)">Quiero agendar una cita</button>
+    <button class="suggestion" onclick="sendSuggestion(this)">¿Qué servicios tienen?</button>
+    <button class="suggestion" onclick="sendSuggestion(this)">¿Dónde están ubicados?</button>
+  </div>
+  <div class="chat-input-area">
+    <input id="chat-input" type="text" placeholder="Escribe tu mensaje..." onkeydown="if(event.key==='Enter') sendMessage()"/>
+    <button id="chat-send" onclick="sendMessage()">➤</button>
+  </div>
+</div>
+
+<script>
+  // ── Estado global (una sola variable, limpio) ──────────────
+  let chatOpen = false
+  let historial = []
+
+  const NEGOCIO_ID = "336d4465-74f0-4df6-9a2e-be3598e94c9e"
+
+  // ── Abrir / cerrar chat ────────────────────────────────────
+  function toggleChat() {
+    chatOpen = !chatOpen
+    const bubble = document.getElementById("chat-bubble")
+    const toggle = document.getElementById("chat-toggle")
+    bubble.classList.toggle("visible", chatOpen)
+    toggle.classList.toggle("open", chatOpen)
+    toggle.textContent = chatOpen ? "✕" : "💬"
+    if (chatOpen && historial.length === 0) {
+  // Cargar mensaje de bienvenida desde Supabase
+  fetch(`https://kkbwtoaqilrrezeqyfjn.supabase.co/rest/v1/negocios?id=eq.${NEGOCIO_ID}&select=mensaje_bienvenida`, {
+    headers: {
+      "apikey": "b_publishable_07HNpDdDOITolQqvGUzqUg_PBvdLiJI",
+      "Authorization": "b_publishable_07HNpDdDOITolQqvGUzqUg_PBvdLiJI"
+    }
+  })
+  .then(r => r.json())
+  .then(data => {
+    const msg = data[0]?.mensaje_bienvenida || "¡Hola! 👋 Soy el asistente virtual. ¿En qué te puedo ayudar?"
+    setTimeout(() => addBotMessage(msg), 400)
+  })
+}
+  }
+
+  // ── Mensajes ───────────────────────────────────────────────
+  function addBotMessage(texto) {
+    const msgs = document.getElementById("chat-messages")
+    const div = document.createElement("div")
+    div.className = "msg bot"
+    div.innerHTML = texto.replace(/\n/g, "<br>") + `<div class="msg-time">${getTime()}</div>`
+    msgs.appendChild(div)
+    msgs.scrollTop = msgs.scrollHeight
+  }
+
+  function addUserMessage(texto) {
+    const msgs = document.getElementById("chat-messages")
+    const div = document.createElement("div")
+    div.className = "msg user"
+    div.innerHTML = texto + `<div class="msg-time">${getTime()}</div>`
+    msgs.appendChild(div)
+    msgs.scrollTop = msgs.scrollHeight
+  }
+
+  // ── Enviar a Claude API ────────────────────────────────────
+  async function sendMessage() {
+    const input = document.getElementById("chat-input")
+    const texto = input.value.trim()
+    if (!texto) return
+
+    document.getElementById("suggestions").style.display = "none"
+    addUserMessage(texto)
+    input.value = ""
+    historial.push({ role: "user", content: texto })
+
+    const msgs = document.getElementById("chat-messages")
+    const typing = document.createElement("div")
+    typing.className = "typing"
+    typing.id = "typing-indicator"
+    typing.innerHTML = "<span></span><span></span><span></span>"
+    msgs.appendChild(typing)
+    msgs.scrollTop = msgs.scrollHeight
+
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+        mensaje: texto,
+        historial: historial.slice(-10),
+        negocioId: NEGOCIO_ID
+})
+      })
+      const data = await res.json()
+      document.getElementById("typing-indicator")?.remove()
+      historial.push({ role: "assistant", content: data.respuesta })
+      addBotMessage(data.respuesta)
+
+      if (data.accion === "agendar") {
+        setTimeout(() => {
+          addBotMessage("📅 Puedes agendar aquí directamente: <a href='https://cal.com/jasson-ramos-uhlgvs/30min' target='_blank' style='color:#2d8a58'>Reservar cita</a>")
+        }, 500)
+      }
+    } catch (err) {
+      document.getElementById("typing-indicator")?.remove()
+      addBotMessage("Lo siento, tuve un problema. Por favor intenta de nuevo.")
+    }
+  }
+
+  // ── Sugerencias y formulario ───────────────────────────────
+  function sendSuggestion(btn) {
+    document.getElementById("chat-input").value = btn.textContent
+    document.getElementById("suggestions").style.display = "none"
+    sendMessage()
+  }
+
+  function handleForm(e) {
+    e.preventDefault()
+    alert("¡Solicitud enviada! Nos comunicaremos contigo en menos de 24 horas para confirmar tu cita.")
+  }
+
+  function getTime() {
+    const now = new Date()
+    return now.getHours().toString().padStart(2,"0") + ":" + now.getMinutes().toString().padStart(2,"0")
+  }
+</script>
+</body>
+</html>
